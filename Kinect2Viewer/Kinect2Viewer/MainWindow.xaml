@@ -1,0 +1,40 @@
+﻿<Window x:Class="Kinect2Viewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kinect2Viewer"
+        mc:Ignorable="d"
+        Title="Kinect v2 Viewer"
+        SizeToContent="WidthAndHeight"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem x:Name="Exit" Header="Exit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="Draw">
+                <MenuItem x:Name="DrawColor" Header="Color" IsCheckable="True" IsChecked="True" Checked="DrawColor_Checked" Unchecked="DrawColor_Unchecked" />
+                <MenuItem x:Name="DrawBody" Header="Body" IsCheckable="True" IsChecked="True" Checked="DrawBody_Checked" Unchecked="DrawBody_Unchecked" />
+                <MenuItem x:Name="DrawDepth" Header="Depth" IsCheckable="True" IsChecked="True" Checked="DrawDepth_Checked" Unchecked="DrawDepth_Unchecked" />
+                <MenuItem x:Name="DrawInfrared" Header="Infrared" IsCheckable="True" IsChecked="False" Checked="DrawInfrared_Checked" Unchecked="DrawInfrared_Unchecked" />
+            </MenuItem>
+        </Menu>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Height="Auto">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Image x:Name="Color" Margin="5,5,5,5" Width="960" Height="540" Grid.Column="0" Grid.Row="0" />
+                <Canvas x:Name="Body" Margin="5,5,5,5" Width="{Binding ElementName=Color, Path=Width}" Height="{Binding ElementName=Color, Path=Height}" Grid.Column="0" Grid.Row="0" />
+                <Image x:Name="Depth" Margin="0,5,5,5" Width="512" Height="424" Grid.Column="1" Grid.Row="0" />
+                <Image x:Name="Infrared" Margin="0,5,5,5" Width="512" Height="424" Grid.Column="1" Grid.Row="0" Visibility="Hidden" />
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
