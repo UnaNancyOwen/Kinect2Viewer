@@ -10,7 +10,7 @@
         Loaded="Window_Loaded"
         Closing="Window_Closing">
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <Menu DockPanel.Dock="Top" Background="{DynamicResource {x:Static SystemColors.WindowColor}}">
             <MenuItem Header="File">
                 <MenuItem x:Name="Exit" Header="Exit" Click="Exit_Click" />
             </MenuItem>
