@@ -12,7 +12,14 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="{DynamicResource {x:Static SystemColors.WindowColor}}">
             <MenuItem Header="File">
+                <MenuItem x:Name="Open" Header="Open" Click="Open_Click" />
+                <Separator />
                 <MenuItem x:Name="Exit" Header="Exit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="Clip">
+                <MenuItem x:Name="ClipPlay" Header="Play" Click="ClipPlay_Click" />
+                <MenuItem x:Name="ClipPause" Header="Pause" Click="ClipPause_Click" />
+                <MenuItem x:Name="ClipStop" Header="Stop" Click="ClipStop_Click" />
             </MenuItem>
             <MenuItem Header="Draw">
                 <MenuItem x:Name="DrawColor" Header="Color" IsCheckable="True" IsChecked="True" Checked="DrawColor_Checked" Unchecked="DrawColor_Unchecked" />

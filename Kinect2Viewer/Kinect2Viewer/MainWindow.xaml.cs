@@ -4,7 +4,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using Microsoft.Kinect;
+using Microsoft.Kinect.KinectStudio;
 
 namespace Kinect2Viewer
 {
@@ -28,6 +30,9 @@ namespace Kinect2Viewer
         FrameDescription infraredFrameDescription;
 
         BodyFrameReader bodyFrameReader;
+
+        // Kinect Studio
+        KinectStudio studio;
 
         // WPF
         WriteableBitmap colorBitmap;
@@ -122,6 +127,9 @@ namespace Kinect2Viewer
                 Color.Source = colorBitmap;
                 Depth.Source = depthBitmap;
                 Infrared.Source = infraredBitmap;
+
+                // Kinect Studio
+                studio = new KinectStudio();
             }
             catch (Exception ex)
             {
@@ -239,16 +247,19 @@ namespace Kinect2Viewer
             for (int i = 0; i < bodies.Length; i++)
             {
                 Body body = bodies[i];
-                if (!body.IsTracked)
+                if (body != null)
                 {
-                    continue;
-                }
-
-                foreach (var joint in body.Joints)
-                {
-                    if (joint.Value.TrackingState != TrackingState.NotTracked)
+                    if (!body.IsTracked)
                     {
-                        DrawEllipse(joint.Value, 10, brushes[i]);
+                        continue;
+                    }
+
+                    foreach (var joint in body.Joints)
+                    {
+                        if (joint.Value.TrackingState != TrackingState.NotTracked)
+                        {
+                            DrawEllipse(joint.Value, 10, brushes[i]);
+                        }
                     }
                 }
             }
@@ -308,6 +319,39 @@ namespace Kinect2Viewer
                 kinect.Close();
                 kinect = null;
             }
+        }
+
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "Open Clip File";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Kinect Studio\\Repository";
+            dialog.Filter = "Event File|*.xef";
+
+            if (dialog.ShowDialog() == true)
+            {
+                studio.Clip(dialog.FileName);
+            }
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void ClipPlay_Click(object sender, RoutedEventArgs e)
+        {
+            studio.Play();
+        }
+
+        private void ClipPause_Click(object sender, RoutedEventArgs e)
+        {
+            studio.Pause();
+        }
+
+        private void ClipStop_Click(object sender, RoutedEventArgs e)
+        {
+            studio.Stop();
         }
 
         private void DrawColor_Checked(object sender, RoutedEventArgs e)
@@ -375,10 +419,6 @@ namespace Kinect2Viewer
                 Infrared.Visibility = Visibility.Hidden;
             }
         }
-
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
     }
 }
+
