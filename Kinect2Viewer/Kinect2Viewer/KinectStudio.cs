@@ -15,6 +15,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Threading;
 using Microsoft.Kinect.Tools;
 
@@ -50,9 +51,9 @@ namespace Microsoft.Kinect.KinectStudio
         /// <param name="loop">Number of times to loop.</param>
         public KinectStudio(string path, uint loop = 0)
         {
-            if (!System.IO.Path.IsPathRooted(path))
+            if (!Path.IsPathRooted(path))
             {
-                throw new System.ArgumentException("Need Enter Absolute Path to Clip", "path");
+                throw new ArgumentException("Need Enter Absolute Path to Clip", "path");
             }
 
             client = KStudio.CreateClient();
@@ -78,9 +79,9 @@ namespace Microsoft.Kinect.KinectStudio
         /// <param name="loop">Number of times to loop.</param>
         public void Clip(string path, uint loop = 0)
         {
-            if (!System.IO.Path.IsPathRooted(path))
+            if (!Path.IsPathRooted(path))
             {
-                throw new System.ArgumentException("Need Enter Absolute Path to Clip", "path");
+                throw new ArgumentException("Need Enter Absolute Path to Clip", "path");
             }
 
             if (!this.path.Equals(path))

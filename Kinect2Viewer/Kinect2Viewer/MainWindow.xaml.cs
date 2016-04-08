@@ -19,17 +19,13 @@ namespace Kinect2Viewer
         KinectSensor kinect;
         CoordinateMapper coordinateMapper;
 
-        ColorFrameReader colorFrameReader;
+        MultiSourceFrameReader multiFrameReader;
+
         FrameDescription colorFrameDescription;
-        ColorImageFormat colorFormat = ColorImageFormat.Bgra;
-
-        DepthFrameReader depthFrameReader;
         FrameDescription depthFrameDescription;
-
-        InfraredFrameReader infraredFrameReader;
         FrameDescription infraredFrameDescription;
 
-        BodyFrameReader bodyFrameReader;
+        ColorImageFormat colorFormat = ColorImageFormat.Bgra;
 
         // Kinect Studio
         KinectStudio studio;
@@ -77,47 +73,32 @@ namespace Kinect2Viewer
                 // Coordinate Mapper
                 coordinateMapper = kinect.CoordinateMapper;
 
-                // Source
-                ColorFrameSource colorFrameSource = kinect.ColorFrameSource;
-                DepthFrameSource depthFrameSource = kinect.DepthFrameSource;
-                InfraredFrameSource infraredFrameSource = kinect.InfraredFrameSource;
-                BodyFrameSource bodyFrameSource = kinect.BodyFrameSource;
-
-                // Reader
-                colorFrameReader = colorFrameSource.OpenReader();
-                colorFrameReader.FrameArrived += ColorFrameArrived;
-
-                depthFrameReader = depthFrameSource.OpenReader();
-                depthFrameReader.FrameArrived += DepthFrameArrived;
-
-                infraredFrameReader = infraredFrameSource.OpenReader();
-                infraredFrameReader.FrameArrived += InfraredFrameArrived;
-
-                bodyFrameReader = bodyFrameSource.OpenReader();
-                bodyFrameReader.FrameArrived += bodyFrameArrived;
+                // Multi Reader
+                FrameSourceTypes types = FrameSourceTypes.Color
+                                       | FrameSourceTypes.Depth
+                                       | FrameSourceTypes.Infrared
+                                       | FrameSourceTypes.Body;
+                multiFrameReader = kinect.OpenMultiSourceFrameReader(types);
+                multiFrameReader.MultiSourceFrameArrived += MultiFrameArrived;
 
                 // Description
-                colorFrameDescription = colorFrameSource.CreateFrameDescription(colorFormat);
+                colorFrameDescription = kinect.ColorFrameSource.CreateFrameDescription(colorFormat);
                 colorRect = new Int32Rect(0, 0, colorFrameDescription.Width, colorFrameDescription.Height);
                 colorStride = colorFrameDescription.Width * (int)colorFrameDescription.BytesPerPixel;
-
-                depthFrameDescription = depthFrameSource.FrameDescription;
-                depthRect = new Int32Rect(0, 0, depthFrameDescription.Width, depthFrameDescription.Height);
-                depthStride = depthFrameDescription.Width;
-
-                infraredFrameDescription = infraredFrameSource.FrameDescription;
-                infraredRect = new Int32Rect(0, 0, infraredFrameDescription.Width, infraredFrameDescription.Height);
-                infraredStride = infraredFrameDescription.Width * (int)infraredFrameDescription.BytesPerPixel;
-
-                // Buffer
                 colorBuffer = new byte[colorFrameDescription.LengthInPixels * colorFrameDescription.BytesPerPixel];
 
+                depthFrameDescription = kinect.DepthFrameSource.FrameDescription;
+                depthRect = new Int32Rect(0, 0, depthFrameDescription.Width, depthFrameDescription.Height);
+                depthStride = depthFrameDescription.Width;
                 depthBuffer = new ushort[depthFrameDescription.LengthInPixels];
                 buffer = new byte[depthFrameDescription.LengthInPixels];
 
+                infraredFrameDescription = kinect.InfraredFrameSource.FrameDescription;
+                infraredRect = new Int32Rect(0, 0, infraredFrameDescription.Width, infraredFrameDescription.Height);
+                infraredStride = infraredFrameDescription.Width * (int)infraredFrameDescription.BytesPerPixel;
                 infraredBuffer = new ushort[infraredFrameDescription.LengthInPixels];
 
-                bodies = new Body[bodyFrameSource.BodyCount];
+                bodies = new Body[kinect.BodyFrameSource.BodyCount];
 
                 // Bitmap
                 colorBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96, 96, PixelFormats.Bgra32, null);
@@ -138,34 +119,31 @@ namespace Kinect2Viewer
             }
         }
 
-        private void ColorFrameArrived(object sender, ColorFrameArrivedEventArgs e)
+        private void MultiFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            UpdateColorFrame(e);
+            MultiSourceFrame multiFrame = e.FrameReference.AcquireFrame();
+            if (multiFrame == null)
+            {
+                return;
+            }
+
+            // Update Frame
+            UpdateColorFrame(multiFrame);
+            UpdateDepthFrame(multiFrame);
+            UpdateInfraredFrame(multiFrame);
+            UpdateBodyFrame(multiFrame);
+
+            // Draw Frame
             DrawColorFrame();
-        }
-
-        private void DepthFrameArrived(object sender, DepthFrameArrivedEventArgs e)
-        {
-            UpdateDepthFrame(e);
             DrawDepthFrame();
-        }
-
-        private void InfraredFrameArrived(object sender, InfraredFrameArrivedEventArgs e)
-        {
-            UpdateInfraredFrame(e);
             DrawInfraredFrame();
-        }
-
-        private void bodyFrameArrived(object sender, BodyFrameArrivedEventArgs e)
-        {
-            UpdateBodyFrame(e);
             DrawBodyFrame();
         }
 
-        private void UpdateColorFrame(ColorFrameArrivedEventArgs e)
+        private void UpdateColorFrame(MultiSourceFrame multiFrame)
         {
             // Frame
-            using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
+            using (ColorFrame colorFrame = multiFrame.ColorFrameReference.AcquireFrame())
             {
                 if (colorFrame == null)
                 {
@@ -176,10 +154,10 @@ namespace Kinect2Viewer
             }
         }
 
-        private void UpdateDepthFrame(DepthFrameArrivedEventArgs e)
+        private void UpdateDepthFrame(MultiSourceFrame multiFrame)
         {
             // Frame
-            using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
+            using (DepthFrame depthFrame = multiFrame.DepthFrameReference.AcquireFrame())
             {
                 if (depthFrame == null)
                 {
@@ -190,10 +168,10 @@ namespace Kinect2Viewer
             }
         }
 
-        private void UpdateInfraredFrame(InfraredFrameArrivedEventArgs e)
+        private void UpdateInfraredFrame(MultiSourceFrame multiFrame)
         {
             // Frame
-            using (InfraredFrame infraredFrame = e.FrameReference.AcquireFrame())
+            using (InfraredFrame infraredFrame = multiFrame.InfraredFrameReference.AcquireFrame())
             {
                 if (infraredFrame == null)
                 {
@@ -204,10 +182,10 @@ namespace Kinect2Viewer
             }
         }
 
-        private void UpdateBodyFrame(BodyFrameArrivedEventArgs e)
+        private void UpdateBodyFrame(MultiSourceFrame multiFrame)
         {
             // Frame
-            using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
+            using (BodyFrame bodyFrame = multiFrame.BodyFrameReference.AcquireFrame())
             {
                 if (bodyFrame == null)
                 {
@@ -290,28 +268,16 @@ namespace Kinect2Viewer
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (colorFrameReader != null)
+            if (studio != null)
             {
-                colorFrameReader.Dispose();
-                colorFrameReader = null;
+                studio.Stop();
+                studio = null;
             }
 
-            if (depthFrameReader != null)
+            if (multiFrameReader != null)
             {
-                depthFrameReader.Dispose();
-                depthFrameReader = null;
-            }
-
-            if (infraredFrameReader != null)
-            {
-                infraredFrameReader.Dispose();
-                infraredFrameReader = null;
-            }
-
-            if (bodyFrameReader != null)
-            {
-                bodyFrameReader.Dispose();
-                bodyFrameReader = null;
+                multiFrameReader.Dispose();
+                multiFrameReader = null;
             }
 
             if (kinect != null)
