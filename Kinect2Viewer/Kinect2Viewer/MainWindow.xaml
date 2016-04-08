@@ -27,6 +27,15 @@
                 <MenuItem x:Name="DrawDepth" Header="Depth" IsCheckable="True" IsChecked="True" Checked="DrawDepth_Checked" Unchecked="DrawDepth_Unchecked" />
                 <MenuItem x:Name="DrawInfrared" Header="Infrared" IsCheckable="True" IsChecked="False" Checked="DrawInfrared_Checked" Unchecked="DrawInfrared_Unchecked" />
             </MenuItem>
+            <MenuItem Header="Save">
+                <MenuItem x:Name="SaveStart" Header="Start" Click="SaveStart_Click" />
+                <MenuItem x:Name="SaveStop" Header="Stop" Click="SaveStop_Click" />
+                <MenuItem x:Name="SaveStream" Header="Stream" IsSubmenuOpen="True">
+                    <MenuItem x:Name="SaveStreamColor" Header="Color" IsCheckable="True" IsChecked="False" />
+                    <MenuItem x:Name="SaveStreamDepth" Header="Depth" IsCheckable="True" IsChecked="False" />
+                    <MenuItem x:Name="SaveStreamBody" Header="Body" IsCheckable="True" IsChecked="True" />
+                </MenuItem>
+            </MenuItem>
         </Menu>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="Auto" Height="Auto">

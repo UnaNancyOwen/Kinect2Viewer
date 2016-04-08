@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using Microsoft.Win32;
 using Microsoft.Kinect;
 using Microsoft.Kinect.KinectStudio;
+using Microsoft.Kinect.DataWriter;
 
 namespace Kinect2Viewer
 {
@@ -29,6 +30,9 @@ namespace Kinect2Viewer
 
         // Kinect Studio
         KinectStudio studio;
+
+        // Data Writer
+        DataWriter writer;
 
         // WPF
         WriteableBitmap colorBitmap;
@@ -111,6 +115,9 @@ namespace Kinect2Viewer
 
                 // Kinect Studio
                 studio = new KinectStudio();
+
+                // Data Writer
+                writer = new DataWriter();
             }
             catch (Exception ex)
             {
@@ -132,6 +139,9 @@ namespace Kinect2Viewer
             UpdateDepthFrame(multiFrame);
             UpdateInfraredFrame(multiFrame);
             UpdateBodyFrame(multiFrame);
+
+            // Save Frame
+            writer.Write(multiFrame);
 
             // Draw Frame
             DrawColorFrame();
@@ -274,6 +284,12 @@ namespace Kinect2Viewer
                 studio = null;
             }
 
+            if (writer != null)
+            {
+                writer.Stop();
+                writer = null;
+            }
+
             if (multiFrameReader != null)
             {
                 multiFrameReader.Dispose();
@@ -384,6 +400,16 @@ namespace Kinect2Viewer
             {
                 Infrared.Visibility = Visibility.Hidden;
             }
+        }
+
+        private void SaveStart_Click(object sender, RoutedEventArgs e)
+        {
+            writer.Start(SaveStreamColor.IsChecked, SaveStreamDepth.IsChecked, SaveStreamBody.IsChecked);
+        }
+
+        private void SaveStop_Click(object sender, RoutedEventArgs e)
+        {
+            writer.Stop();
         }
     }
 }
