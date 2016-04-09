@@ -1,6 +1,16 @@
 ﻿Kinect2Viewer
 =============
 
+Kinect2Viewer is simple viewer sample for Kinect v2 written in C#.  
+
+* Draw the stream data that retrieved from Kinect v2.  
+* Control the stream data that retrieved from Kinect Studio clip.  
+* Save the stream data to file.  
+    * Color ... JPEG  
+    * Depth ... PNG(16bit)  
+    * Body  ... CSV  
+
+
 Environment
 -----------
 * Kinect for Windows SDK v2.0
